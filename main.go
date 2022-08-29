@@ -15,7 +15,7 @@ var db *sql.DB
 var err error
 
 const (
-	host        = "localhost"
+	host        = "10.105.168.35"
 	port        = 5432
 	DB_USER     = "krishna"
 	DB_PASSWORD = "db@123"
