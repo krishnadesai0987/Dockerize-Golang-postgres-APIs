@@ -124,10 +124,10 @@ func Getbook(w http.ResponseWriter, r *http.Request) {
 // Create a new book
 func Createbook(w http.ResponseWriter, r *http.Request) {
 
-	id := r.FormValue("id")
-	title := r.FormValue("title")
-	author := r.FormValue("author")
-	description := r.FormValue("description")
+	id := r.FormValue("Id")
+	title := r.FormValue("Title")
+	author := r.FormValue("Author")
+	description := r.FormValue("Description")
 
 	var response = JsonResponse{}
 
@@ -154,6 +154,27 @@ func Updatebook(w http.ResponseWriter, r *http.Request) {
 
 // Delete a book
 func Deletebook(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	bookID := params["id"]
+
+	var response = JsonResponse{}
+
+	if bookID == "" {
+		response = JsonResponse{Type: "error", Message: "You are missing bookID parameter."}
+	} else {
+
+		printMessage("Deleting book from DB")
+
+		_, err := db.Exec("DELETE FROM books where movieID = ?", bookID)
+
+		// check errors
+		checkerr(err)
+
+		response = JsonResponse{Type: "success", Message: "The book has been deleted successfully!"}
+	}
+
+	json.NewEncoder(w).Encode(response)
 
 }
 
