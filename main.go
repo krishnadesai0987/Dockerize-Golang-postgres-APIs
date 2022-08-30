@@ -97,40 +97,54 @@ func Getbook(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "we are connected to a browser\n")
 	params := mux.Vars(r)
 	var book_id = params["id"]
-	if book_id == "" {
-		var response = JsonResponse{Type: "error", Message: "You are missing BookID parameter."}
-		json.NewEncoder(w).Encode(response)
-	} else {
 
-		printMessage("Getting book details from DB")
-		row, err := db.Query("select * from books where id=?", book_id)
+	printMessage("Getting book details from DB")
+	row, err := db.Query("select * from books where id=$?", book_id)
 
+	checkerr(err)
+	var book []Book
+	for row.Next() {
+
+		var id int
+		var title string
+		var author string
+		var description string
+
+		err := row.Scan(&id, &title, &author, &description)
 		checkerr(err)
-		var book []Book
-		for row.Next() {
 
-			var id int
-			var title string
-			var author string
-			var description string
-
-			err := row.Scan(&id, &title, &author, &description)
-			checkerr(err)
-
-			book = append(book, Book{Id: id, Title: title, Author: author, Description: description})
-
-		}
-		var response = JsonResponse{Type: "success", Data: book}
-
-		json.NewEncoder(w).Encode(response)
-
+		book = append(book, Book{Id: id, Title: title, Author: author, Description: description})
 	}
+	var response = JsonResponse{Type: "success", Data: book}
+
+	json.NewEncoder(w).Encode(response)
 
 }
 
 // Create a new book
 func Createbook(w http.ResponseWriter, r *http.Request) {
 
+	id := r.FormValue("id")
+	title := r.FormValue("title")
+	author := r.FormValue("author")
+	description := r.FormValue("description")
+
+	var response = JsonResponse{}
+
+	if id == "" || title == "" {
+		response = JsonResponse{Type: "error", Message: "You are missing bookID or bookName parameter."}
+	} else {
+		printMessage("Inserting book into DB")
+		fmt.Println("Inserting new book details with ID: " + id + "and title; " + title)
+		var lastInsertID int
+		err := db.QueryRow("INSERT INTO books(id, title,author,description) VALUES($1, $2,$3,$4) returning id;", id, title, author, description).Scan(&lastInsertID)
+		// check errors
+		checkerr(err)
+
+		response = JsonResponse{Type: "success", Message: "The book details has been inserted successfully!"}
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
 
 // Update a book
