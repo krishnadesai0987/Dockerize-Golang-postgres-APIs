@@ -61,13 +61,17 @@ func checkerr(err error) {
 }
 
 //Get All Books
+// response and request handlers
 func Getbooks(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "we are connected to a browser\n")
+	//fetch all movies from movies table
 	rows, err := db.Query("SELECT * FROM books")
 
+	//check errors
 	checkerr(err)
-	printMessage("fetching data.............")
+	printMessage("fetching books ............")
 
+	// prepare response
 	var books []Book
 	for rows.Next() {
 		//book := Book{}
@@ -90,6 +94,37 @@ func Getbooks(w http.ResponseWriter, r *http.Request) {
 
 //Get a book
 func Getbook(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "we are connected to a browser\n")
+	params := mux.Vars(r)
+	var book_id = params["id"]
+	if book_id == "" {
+		var response = JsonResponse{Type: "error", Message: "You are missing BookID parameter."}
+		json.NewEncoder(w).Encode(response)
+	} else {
+
+		printMessage("Getting book details from DB")
+		row, err := db.Query("select * from books where id=?", book_id)
+
+		checkerr(err)
+		var book []Book
+		for row.Next() {
+
+			var id int
+			var title string
+			var author string
+			var description string
+
+			err := row.Scan(&id, &title, &author, &description)
+			checkerr(err)
+
+			book = append(book, Book{Id: id, Title: title, Author: author, Description: description})
+
+		}
+		var response = JsonResponse{Type: "success", Data: book}
+
+		json.NewEncoder(w).Encode(response)
+
+	}
 
 }
 
