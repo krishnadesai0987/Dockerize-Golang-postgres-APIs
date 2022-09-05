@@ -26,15 +26,15 @@ CREATE TABLE books (
     id PRIMARY KEY int,
     title text,
     author text,
-    description character(100))  );
-    ```
-## Install Docker
+    description character(100))  ); 
+```
+## Install Docker on your machine/server
 Follow the following commnad to deploy your application on docker
+- docker-compose up -d --build -> automate the configuration require to build images and container
+- docker logs -f go_image_name-> check the logs of .go file
+- docker ps ->verify the running containers
+- curl http://localhost:8000/books -> you will be able to hit API.
 
-```
-- git clone --> clone the github repo: 
-- docker-compose up -d --build  -->
-- docker ps --> to check running containers
-- hit the url mentioned in the **Request** section in Postman.
-```
+    
+
 
