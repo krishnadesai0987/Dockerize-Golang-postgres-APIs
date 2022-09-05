@@ -1,4 +1,4 @@
-# **Golang, Postgres and Rest APIs(using gorila/mux package).Covered CURD operation on Postgres DB using REST APIs.
+#   Golang, Postgres and Rest APIs(using gorila/mux package).Covered CURD operation on Postgres DB using REST APIs.
 ##  Install Postgres on your machine/server. you can find the tutorials on YouTube/google.
 ##  Install Postman to make GET/POST/PUT/DELETE and many more requests to your application.**
 
@@ -12,12 +12,12 @@ you need to install following packages to make it run:
 - Use Postman to test the requests
  
 ## Requests
-Get all books - [GET] http://localhost:8000/books
-Get a book by id - [GET] http://localhost:8000/books/id 
-Create a book - [POST] http://localhost:8000/books - (body: 'x-www-form-urlencoded', pass in id)
-Update a book by id - [PUT] http://localhost:8000/books/id - (body: 'x-www-form-urlencoded', pass updated details)
-Delete a book by id - [DELETE] http://localhost:8000/books/id
-Delete all books - [DELETE] http://localhost:8000/books/
+- Get all books - [GET] http://localhost:8000/books
+- Get a book by id - [GET] http://localhost:8000/books/id 
+- Create a book - [POST] http://localhost:8000/books - (body: 'x-www-form-urlencoded', pass in id)
+- Update a book by id - [PUT] http://localhost:8000/books/id - (body: 'x-www-form-urlencoded', pass updated details)
+- Delete a book by id - [DELETE] http://localhost:8000/books/id
+- Delete all books - [DELETE] http://localhost:8000/books/
 
 ```diff
 ## Book table
