@@ -31,7 +31,7 @@ CREATE TABLE books (
 ## Install Docker
 Follow the following commnad to deploy your application on docker
 
-``` diff
+```
 - git clone --> clone the github repo: 
 - docker-compose up -d --build  -->
 - docker ps --> to check running containers
