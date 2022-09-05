@@ -28,3 +28,13 @@ CREATE TABLE books (
     author text,
     description character(100))  );
     ```
+## Install Docker
+Follow the following commnad to deploy your application on docker
+
+``` diff
+- git clone --> clone the github repo: 
+- docker-compose up -d --build  -->
+- docker ps --> to check running containers
+- hit the url mentioned in the **Request** section in Postman.
+```
+
