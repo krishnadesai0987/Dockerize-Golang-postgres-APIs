@@ -10,24 +10,36 @@ import (
 	"log"
 	"net/http"
 
+	"os"
+
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 var db *sql.DB
 var err error
 
-const (
-	host        = "10.105.168.35"
-	port        = 5432
-	DB_USER     = "krishna"
-	DB_PASSWORD = "db@123"
-	DB_NAME     = "library"
-)
-
 // DB set up
 func init() {
-	dbinfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s  sslmode=disable", host, port, DB_USER, DB_PASSWORD, DB_NAME)
+
+	err := godotenv.Load(".env")
+
+	if err != nil {
+
+		log.Fatalf("Some error occured. Err: %s", err)
+
+	}
+
+	var (
+		host     = os.Getenv("DB_HOST")
+		port     = os.Getenv("DB_PORT")
+		user     = os.Getenv("DB_USER")
+		password = os.Getenv("DB_PASSWORD")
+		dbname   = os.Getenv("DB_NAME")
+	)
+
+	dbinfo := fmt.Sprintf("host =%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	db, err = sql.Open("postgres", dbinfo)
 
 	checkerr(err)
@@ -59,46 +71,55 @@ func checkerr(err error) {
 		panic(err)
 	} else {
 
-		fmt.Println("We are connected to Postgress database!!")
+		fmt.Println("We are connected to library database!!")
 	}
+
 }
 
 //Get All Books
 // response and request handlers
 func Getbooks(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	//w.WriteHeader(http.StatusCreated)
 	fmt.Fprint(w, "we are connected to a browser\n")
-	//fetch all movies from movies table
+	//fetch all books from books table
 	rows, err := db.Query("SELECT * FROM books")
 
 	//check errors
-	checkerr(err)
-	printMessage("fetching books ............")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError) //500
+		w.Write([]byte(err.Error()))
+	} else {
+		printMessage("fetching books ............")
 
-	// prepare response
-	var books []Book
-	for rows.Next() {
-		//book := Book{}
-		var id int
-		var title string
-		var author string
-		var description string
+		// prepare response
+		var books []Book
+		for rows.Next() {
+			//book := Book{}
+			var id int
+			var title string
+			var author string
+			var description string
 
-		err := rows.Scan(&id, &title, &author, &description)
-		checkerr(err)
+			err := rows.Scan(&id, &title, &author, &description)
+			checkerr(err)
 
-		books = append(books, Book{Id: id, Title: title, Author: author, Description: description})
+			books = append(books, Book{Id: id, Title: title, Author: author, Description: description})
 
+		}
+
+		var response = JsonResponse{Type: "success", Data: books}
+
+		json.NewEncoder(w).Encode(response)
 	}
-
-	var response = JsonResponse{Type: "success", Data: books}
-
-	json.NewEncoder(w).Encode(response)
 }
 
 //Get a book
 func Getbook(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "we are connected to a browser\n")
+
 	params := mux.Vars(r)
+
 	var book_id = params["id"]
 
 	printMessage("Getting book details from DB")
@@ -135,8 +156,8 @@ func Createbook(w http.ResponseWriter, r *http.Request) { //done
 
 	var response = JsonResponse{}
 
-	if id == "" || title == "" {
-		response = JsonResponse{Type: "error", Message: "You are missing bookID or bookName parameter."}
+	if id == "" || title == "" || author == "" || description == "" {
+		response = JsonResponse{Type: "error", Message: "some fields are missing"}
 	} else {
 		printMessage("Inserting book into DB")
 		fmt.Println("Inserting new book details with book id"+id, "and title "+title)
@@ -234,7 +255,7 @@ func main() {
 	router.HandleFunc("/api/books/{id}", Updatebook).Methods("PUT")
 	router.HandleFunc("/api/books/{id}", Deletebook).Methods("DELETE")
 	router.HandleFunc("/api/books", DeleteAllBooks).Methods("DELETE")
-	fmt.Println("Server at 8000")
-	log.Fatal(http.ListenAndServe(":8000", router))
+	fmt.Println("Server at 8080")
+	log.Fatal(http.ListenAndServe(":8080", router))
 
 }
